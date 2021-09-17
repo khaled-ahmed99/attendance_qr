@@ -173,30 +173,29 @@ class AttendanceScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  grade.isNotEmpty
-                      ? Row(
-                          children: [
-                            Text(
-                              "Grade: ",
-                              style: TextStyle(
-                                fontFamily: 'rb',
-                                color: Colors.yellow[300],
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                              ),
-                            ),
-                            Text(
-                              "$grade",
-                              style: TextStyle(
-                                fontFamily: 'rb',
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                              ),
-                            ),
-                          ],
-                        )
-                      : Container(),
+                  if (grade.isNotEmpty)
+                    Row(
+                      children: [
+                        Text(
+                          "Grade: ",
+                          style: TextStyle(
+                            fontFamily: 'rb',
+                            color: Colors.yellow[300],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                        Text(
+                          "$grade",
+                          style: TextStyle(
+                            fontFamily: 'rb',
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
               ),
             ),

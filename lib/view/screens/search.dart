@@ -159,25 +159,28 @@ class _SearchState extends State<Search> with SingleTickerProviderStateMixin {
                         ontap: () async {
                           DateTime date = await selectTimePicker(context);
                           if (date != null) {
+                            String formattedDate =
+                            DateFormat('d/M/yyyy').format(date);
                             List<Student> attendedStudents = [];
                             for (Student student in _students) {
                               if (student.attendanceList
                                   .firstWhere(
                                       (element) =>
-                                          element.split(" ")[0] ==
-                                          DateFormat('d/M/yyyy').format(date),
-                                      orElse: () => "")
+                                  element.split(" ")[0] ==
+                                      formattedDate,
+                                  orElse: () => "")
                                   .isNotEmpty) {
                                 attendedStudents.add(student);
                               }
                             }
                             if (attendedStudents.isNotEmpty) {
                               Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => AttendanceScreen(
-                                          DateFormat('d/M/yyyy').format(date),
-                                          _students)));
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AttendanceScreen(
+                                      formattedDate, attendedStudents),
+                                ),
+                              );
                             } else {
                               showCustomSnack(
                                   context,

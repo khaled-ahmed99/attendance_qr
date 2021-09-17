@@ -34,7 +34,7 @@ class MainDrawer extends StatelessWidget {
           },
         ),
         DrawerListTile(
-          imgpath: "leave_apply.png",
+          imgpath: "add_student.png",
           name: "Add Student",
           ontap: () {
             Navigator.push(

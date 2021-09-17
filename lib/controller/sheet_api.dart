@@ -95,14 +95,25 @@ class SheetApi {
     return await _worksheet.clear() ? DataStatus.done : DataStatus.wrong;
   }
 
+  static Future<bool> deleteStudentById(int id) async {
+    if (_worksheet == null) await init();
+    final index = await _worksheet.values.rowIndexOf(id);
+    if (index == -1) return false;
+    return await _worksheet.deleteRow(index);
+  }
+
   static Future<List<Map<String, dynamic>>> _createRowsMap(
       List<Student> students) async {
     List<Map<String, dynamic>> rows = [];
+    Map<String, dynamic> row;
     for (Student student in students) {
-      Map<String, dynamic> row = student.toJson();
+      row = student.toJson();
       row[qr] = await _createQr(student);
       if (row[qr] == null) return null;
+      print(student.id);
+      print(row[qr]);
       rows.add(row);
+      await Future.delayed(Duration(seconds: 1));
     }
     return rows;
   }

@@ -25,6 +25,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   Animation animation, delayedAnimation, muchDelayedAnimation, leftCurve;
   AnimationController animationController;
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -55,8 +56,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     return AnimatedBuilder(
       animation: animationController,
       builder: (BuildContext context, Widget child) {
-        final GlobalKey<ScaffoldState> _scaffoldKey =
-            new GlobalKey<ScaffoldState>();
         return Selector<ModalHud, bool>(
             selector: (context, modalHudProv) => modalHudProv.isLoading,
             builder: (context, isLoading, child) {
@@ -124,7 +123,52 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                 },
                                 child: DashboardCard(
                                   name: "Add Student",
-                                  imgpath: "leave_apply.png",
+                                  imgpath: "add_student.png",
+                                ),
+                              ),
+                            ),
+                            Transform(
+                              transform: Matrix4.translationValues(
+                                  muchDelayedAnimation.value * width, 0, 0),
+                              child: Bouncing(
+                                onPress: () async {
+                                  if (await _checkConnection(
+                                      _scaffoldKey.currentContext)) {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) =>
+                                          DeleteStudentDialog((value) async {
+                                        Provider.of<ModalHud>(
+                                                _scaffoldKey.currentContext,
+                                                listen: false)
+                                            .changeIsLoading(true);
+                                        if (await SheetApi.deleteStudentById(
+                                            int.parse(value.trim()))) {
+                                          Provider.of<ModalHud>(
+                                                  _scaffoldKey.currentContext,
+                                                  listen: false)
+                                              .changeIsLoading(false);
+                                          showCustomSnack(
+                                              _scaffoldKey.currentContext,
+                                              "Student is deleted successfully from excel sheet",
+                                              Colors.green);
+                                        } else {
+                                          Provider.of<ModalHud>(
+                                                  _scaffoldKey.currentContext,
+                                                  listen: false)
+                                              .changeIsLoading(false);
+                                          showCustomSnack(
+                                              _scaffoldKey.currentContext,
+                                              "Student isn\'t deleted from excel sheet",
+                                              Colors.red);
+                                        }
+                                      }),
+                                    );
+                                  }
+                                },
+                                child: DashboardCard(
+                                  name: "Delete Student",
+                                  imgpath: "delete_student.png",
                                 ),
                               ),
                             ),
@@ -744,5 +788,96 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   void dispose() {
     animationController.dispose();
     super.dispose();
+  }
+}
+
+class DeleteStudentDialog extends StatefulWidget {
+  final Function(String) _onPress;
+
+  DeleteStudentDialog(this._onPress);
+
+  @override
+  _DeleteStudentDialogState createState() => _DeleteStudentDialogState();
+}
+
+class _DeleteStudentDialogState extends State<DeleteStudentDialog> {
+  String _value = "";
+  String _errText;
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(
+        'Delete Student',
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('Student will be deleted from excel sheet',
+              style: TextStyle(color: Colors.red)),
+          SizedBox(height: 14.0),
+          TextField(
+            onChanged: (val) => _value = val,
+            keyboardType: TextInputType.phone,
+            decoration: InputDecoration(
+              enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.transparent),
+                  borderRadius: BorderRadius.all(Radius.circular(30))),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.lightBlue),
+                  borderRadius: BorderRadius.all(Radius.circular(30))),
+              errorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.all(Radius.circular(30))),
+              focusedErrorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.all(Radius.circular(30))),
+              prefixIcon: Icon(Icons.person_remove),
+              hintText: 'Enter ID',
+              filled: true,
+              fillColor: Colors.grey[200],
+              errorText: _errText,
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+          RaisedButton(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10))),
+              color: Colors.blue,
+              textColor: Colors.white,
+              splashColor: Colors.blue,
+              focusColor: Colors.blue,
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text(
+                'Cancel',
+                style: TextStyle(fontFamily: 'rb', fontSize: 18),
+              )),
+          RaisedButton(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10))),
+              color: Colors.blue,
+              textColor: Colors.white,
+              splashColor: Colors.blue,
+              focusColor: Colors.blue,
+              onPressed: () async {
+                if (_value.trim().isNotEmpty) {
+                  Navigator.pop(context);
+                  widget._onPress(_value);
+                } else
+                  setState(() {
+                    _errText = "Please, enter student id";
+                  });
+              },
+              child: Text(
+                'Confirm',
+                style: TextStyle(fontFamily: 'rb', fontSize: 18),
+              )),
+        ]),
+      ],
+    );
   }
 }

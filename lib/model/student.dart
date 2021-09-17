@@ -35,7 +35,7 @@ class Student extends HiveObject {
   Student.fromJson(Map<String, String> json) {
     id = int.parse(json[SheetApi.id]);
     name = json[SheetApi.name];
-    phoneNum = json[SheetApi.phoneNum];
+    phoneNum = '0' + json[SheetApi.phoneNum];
     year = json[SheetApi.year];
   }
 

@@ -217,20 +217,30 @@ class _AddStudentState extends State<AddStudent>
                         onPress: () async {
                           if (_formKey.currentState.validate()) {
                             _formKey.currentState.save();
-                            Student student = Student(
-                                name: _name.text.trim(),
-                                phoneNum: _phoneNum.text.trim(),
-                                id: _id,
-                                year: _selectedGrade)
-                              ..addDate();
-                            Boxes.getStudents().put(_id, student);
-                            _id++;
+                            if (Boxes.getStudents().values.toList().firstWhere(
+                                    (student) =>
+                                student.phoneNum ==
+                                    _phoneNum.text.trim(),
+                                orElse: () => null) ==
+                                null) {
+                              Student student = Student(
+                                  name: _name.text.trim(),
+                                  phoneNum: _phoneNum.text.trim(),
+                                  id: _id,
+                                  year: _selectedGrade)
+                                ..addDate();
+                              Boxes.getStudents().put(_id, student);
+                              _id++;
+                              showCustomSnack(
+                                  context,
+                                  'Student is added successfully',
+                                  Colors.green);
+                            } else
+                              showCustomSnack(context, 'Student already exists',
+                                  Colors.red);
                             _name.clear();
                             _phoneNum.clear();
-                            showCustomSnack(context,
-                                'Student is added successfully', Colors.green);
-                          }
-                        },
+                          }                        },
                         child: Container(
                           width: double.infinity,
                           decoration: BoxDecoration(
